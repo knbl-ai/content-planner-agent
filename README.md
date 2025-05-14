@@ -1,110 +1,82 @@
 # Content Planner Agent
 
-An intelligent agent that helps users generate content guidelines for automated social media posting. Built with LangGraph, Flask, and React.
-
-## Features
-
-- Natural language conversation with the agent
-- Memory persistence across conversation turns
-- Iterative content guideline creation
-- Save finalized guidelines
+A LangGraph-based agent that helps users create content guidelines for social media posting.
 
 ## Project Structure
 
 ```
 content_planner_agent/
-├── app/                    # Backend Python code
-│   ├── api/                # API endpoints and agent logic
-│   ├── models/             # Data models
-│   ├── utils/              # Utility functions
-│   ├── components/         # Reusable components
-│   ├── static/             # Static assets
-│   └── templates/          # HTML templates
-├── frontend/               # React frontend
-│   ├── public/
-│   └── src/
-│       ├── components/     # React components
-│       ├── App.jsx         # Main React component
-│       └── ...
-├── app.py                  # Flask application entry point
-├── requirements.txt        # Python dependencies
-└── .env                    # Environment variables (not in repo)
+├── api/                 # API-related code
+│   ├── app.py           # Flask application
+│   └── routes.py        # API endpoints
+├── config/              # Configuration settings
+│   └── settings.py      # Environment variables and constants
+├── db/                  # Database interaction
+│   └── database.py      # MongoDB interface
+├── models/              # LLM models
+│   └── llm.py           # LLM initialization
+├── nodes/               # Graph nodes
+│   └── process_node.py  # Processing node for the graph
+├── state/               # State definitions
+│   └── state.py         # State TypedDict for the graph
+├── utils/               # Utility functions
+│   └── extractors.py    # Functions for extracting data from responses
+└── agent.py             # Main agent implementation
 ```
 
 ## Setup
 
-### Prerequisites
-
-- Python 3.10+
-- Node.js 14+
-- MongoDB (optional, mock DB is used by default)
-
-### Backend Setup
-
-1. Clone the repository:
+1. Create a virtual environment:
    ```
-   git clone <repository-url>
-   cd content_planner_agent
-   ```
-
-2. Create a virtual environment and activate it:
-   ```
-   python3 -m venv content_planner_env
-   source content_planner_env/bin/activate  # On Windows: content_planner_env\Scripts\activate
-   ```
-
-3. Install dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
-
-4. Create a `.env` file in the root directory with the following variables:
-   ```
-   ANTHROPIC_API_KEY=your_anthropic_api_key_here
-   MONGODB_URI=mongodb://localhost:27017/
-   MONGODB_DB_NAME=content_planner
-   FLASK_ENV=development
-   ```
-
-5. Run the Flask application:
-   ```
-   python app.py
-   ```
-
-### Frontend Setup
-
-1. Navigate to the frontend directory:
-   ```
-   cd frontend
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
 2. Install dependencies:
    ```
-   npm install
+   pip install -e .
    ```
 
-3. Run the development server:
+3. Create a `.env` file with your API keys:
    ```
-   npm run dev
+   ANTHROPIC_API_KEY=your_api_key_here
+   DB_CONNECTION_STRING=your_mongodb_connection_string
    ```
-
-4. Open your browser and navigate to `http://localhost:5173`
 
 ## Usage
 
-1. Start a conversation with the agent by typing in the chat input
-2. The agent will help you create a content guideline through conversation
-3. View the current guideline draft by clicking "Show Guideline"
-4. Save the finalized guideline by clicking "Save Guideline"
+Run the application:
+
+```
+python main.py
+```
+
+The API will be available at `http://localhost:5000`.
+
+### API Endpoints
+
+- `POST /api/message` - Process a message
+  ```json
+  {
+    "message": "Help me create content guidelines for my tech blog",
+    "session_id": "unique-session-id"
+  }
+  ```
+
+- `POST /api/guideline` - Save a finalized guideline
+  ```json
+  {
+    "guideline": "# Content Guidelines for Tech Blog\n\n...",
+    "session_id": "unique-session-id"
+  }
+  ```
+
+- `GET /api/guideline/<session_id>` - Get a saved guideline
 
 ## Future Enhancements
 
-- RAG integration for fetching content best practices
-- Web search tool for real-time information
-- Structured JSON schema for guidelines
-- PostgreSQL or Redis for session storage
-- Vector store (FAISS or PGVector) for long-term context
-
-## License
-
-MIT # content-planner-agent
+- Additional graph nodes for specialized processing
+- Integration with more LLM providers
+- Enhanced error handling and logging
+- User authentication and authorization
+- Improved database schema and indexing

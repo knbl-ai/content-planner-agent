@@ -1,0 +1,9 @@
+{
+    "dependencies": [
+        "./content_planner_agent"
+    ],
+    "graphs": {
+        "content_planner": "./content_planner_agent/agent.py:ContentPlannerAgent"
+    },
+    "env": "./.env"
+} 
