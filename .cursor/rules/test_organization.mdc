@@ -1,0 +1,38 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Test Organization Rules
+
+- All test files must be placed in the `/tests` directory
+- Test files should be named with the pattern `test_*.py`
+- Each component should have corresponding tests in a file named `test_<component_name>.py`
+- Test files should include proper docstrings and clear test case descriptions
+- Use descriptive test function names that explain what is being tested
+
+When adding a new test:
+1. Create it in the `/tests` directory
+2. Import the module being tested
+3. Define clear test functions with descriptive names
+4. Include assertions that validate expected behavior
+
+Example test structure:
+```python
+"""
+Test module for X component.
+"""
+import unittest
+from content_planner_agent.component import Component
+
+def test_specific_functionality():
+    """Test that specific functionality works as expected."""
+    # Test setup
+    component = Component()
+    
+    # Execute test
+    result = component.function()
+    
+    # Assert expected results
+    assert result == expected_value
+```

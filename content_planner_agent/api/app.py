@@ -1,28 +1,39 @@
 """
 Flask application for the Content Planner Agent API.
 """
+import logging
 from flask import Flask
 from flask_cors import CORS
 from content_planner_agent.api.routes import api_bp
+
+# Set up logger
+logger = logging.getLogger(__name__)
 
 def create_app():
     """
     Create and configure the Flask application.
     
     Returns:
-        The configured Flask application
+        A configured Flask application
     """
     app = Flask(__name__)
     
-    # Enable CORS with more permissive settings
-    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+    # Enable CORS
+    CORS(app)
     
     # Register the API blueprint
     app.register_blueprint(api_bp, url_prefix='/api')
     
+    # Add a health check route
+    @app.route('/health')
+    def health_check():
+        return {'status': 'healthy'}
+    
+    logger.info("Flask application created and configured")
+    
     return app
 
-# Create the application instance
+# Create the app instance for direct imports
 app = create_app()
 
 if __name__ == '__main__':

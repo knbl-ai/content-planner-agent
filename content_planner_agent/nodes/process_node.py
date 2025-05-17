@@ -20,6 +20,8 @@ def process_input(state: ContentPlannerState) -> ContentPlannerState:
         The updated state with the agent's response and updated guideline draft
     """
     # Get the last message (which should be from the user)
+    print("state", state)
+
     last_message = state["messages"][-1]
     
     # Get the current guideline draft

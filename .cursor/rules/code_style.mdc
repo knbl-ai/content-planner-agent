@@ -1,0 +1,55 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Code Style Guidelines
+
+## General
+
+- Follow PEP 8 conventions for Python code
+- Maximum line length is 100 characters
+- Use 4 spaces for indentation (no tabs)
+- Use docstrings for all modules, classes, and functions
+- Use type hints for function parameters and return values
+
+## Imports
+
+- Group imports in the following order:
+  1. Standard library imports
+  2. Third-party imports
+  3. Local application imports
+- Separate import groups with a blank line
+- Use absolute imports for clarity
+
+## Naming Conventions
+
+- Use `snake_case` for variables, functions, and methods
+- Use `PascalCase` for classes and types
+- Use `UPPER_CASE` for constants
+
+## Error Handling
+
+- Use specific exception types instead of generic ones
+- Include context information in exception messages
+- Log exceptions with appropriate log levels
+- Do not use bare `except:` clauses
+
+## Comments
+
+- Comments should explain "why" not "what"
+- Keep comments up-to-date with code changes
+- Use TODO comments for future improvements
+
+## State Management
+
+- Use typing.TypedDict for state definitions
+- Document state structure with clear comments
+- Use Annotated types with reducers for concurrent updates
+
+## Documentation
+
+- Include clear docstrings for all public functions and classes
+- Document parameters and return values
+- Include examples where appropriate
+- Keep docstrings up-to-date with implementation changes

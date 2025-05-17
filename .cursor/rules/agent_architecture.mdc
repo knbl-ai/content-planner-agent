@@ -1,0 +1,63 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Content Planner Agent Architecture Guidelines
+
+## State Management
+
+- Use `Annotated[List[BaseMessage], operator.add]` for message fields to enable concurrent node updates
+- Always return a complete state object from every node function
+- Preserve all state fields when updating state in nodes
+- Handle all possible content types (string, list, etc.) when processing model responses
+
+## Node Implementation
+
+- Each node should have a single responsibility
+- Nodes should only modify their specific areas of the state
+- Implement proper error handling in every node function
+- Always check message types before accessing attributes:
+  ```python
+  # Handle response content which could be a string or AIMessage
+  if hasattr(response, 'content'):
+      content = response.content
+  else:
+      content = str(response)
+  
+  # Ensure we're dealing with a string
+  if isinstance(content, list):
+      # Handle list content
+      ...
+  else:
+      # Handle string content
+      ...
+  ```
+
+## Graph Structure
+
+- Router node should be the entry point for all messages
+- Use conditional edges to direct flow based on intent
+- Implement loop prevention by checking message types
+- Return to END when an AI message is detected in the router
+
+## Error Handling
+
+- Use proper exception handling in all node functions
+- Log all errors with context information
+- Handle gracefully when model responses don't match expected formats
+- Implement fallbacks for edge cases
+
+## Logging
+
+- Use descriptive log messages with appropriate levels
+- Include context in log messages (e.g., session ID, task type)
+- Log entry and exit points of significant operations
+- Don't log sensitive data
+
+## Testing
+
+- Test each node individually before integrating
+- Use debug mode for initial testing to avoid API calls
+- Test happy paths and edge cases
+- Validate proper state transitions

@@ -1,0 +1,70 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# LangGraph Best Practices
+
+## Parallel Execution
+
+- Use `Annotated` types with reducers for list fields that might be updated concurrently
+- Import operators for reducer functions:
+  ```python
+  from typing import Annotated
+  import operator
+  ```
+  
+- Define state with proper reducers:
+  ```python
+  class MyState(TypedDict):
+      messages: Annotated[List[BaseMessage], operator.add]
+      # Other fields without reducers
+      task: str
+  ```
+
+## State Transitions
+
+- Define clear conditional edges to control flow
+- Use END node to terminate processing when appropriate
+- Check for agent responses to prevent infinite loops:
+  ```python
+  if isinstance(state["messages"][-1], AIMessage):
+      return END
+  ```
+
+## Memory Management
+
+- Use `MemorySaver` for persisting conversation state
+- Configure thread_id for session-based memory:
+  ```python
+  config = {"configurable": {"thread_id": session_id}}
+  result = graph.invoke(input_state, config)
+  ```
+
+## Error Prevention
+
+- Handle the "INVALID_CONCURRENT_GRAPH_UPDATE" error by:
+  1. Using proper reducers for shared fields
+  2. Ensuring nodes don't try to update the same non-reduced fields
+  3. Testing parallel execution paths
+
+## Response Handling
+
+- Always handle both string and list/message content:
+  ```python
+  # Check content type and convert appropriately
+  if isinstance(content, list):
+      if len(content) > 0:
+          content_str = str(content[0].content)
+      else:
+          content_str = "Default response"
+  else:
+      content_str = str(content)
+  ```
+
+## Graph Design
+
+- Keep nodes focused on a single responsibility
+- Use the router pattern for intent detection and workflow control
+- Return to router after specialized node processing
+- Design for extensibility when new nodes need to be added

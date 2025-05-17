@@ -1,37 +1,57 @@
 """
 Main entry point for the Content Planner Agent application.
 """
-import argparse
-import sys
+import os
+import logging
+import uuid
+from flask import Flask
+from content_planner_agent.api.app import create_app
+from content_planner_agent.utils.logging_config import configure_logging
+from content_planner_agent.agent import ContentPlannerAgent
 
-def main():
+def test_routing_logic():
     """
-    Main function to run the Content Planner Agent application.
-    Provides CLI options for different modes of operation.
+    Test the routing logic of the agent with different queries.
     """
-    parser = argparse.ArgumentParser(description='Content Planner Agent')
-    parser.add_argument('--api', action='store_true', help='Run the API server')
-    parser.add_argument('--test', action='store_true', help='Run a test conversation')
+    agent = ContentPlannerAgent()
+    session_id = str(uuid.uuid4())
+    logger = logging.getLogger(__name__)
     
-    args = parser.parse_args()
+    logger.info("==== TESTING ROUTING LOGIC ====")
     
-    if args.api:
-        # Run the API server
-        from content_planner_agent.api.app import app
-        print("Starting Content Planner Agent API server...")
-        print("API will be available at http://localhost:5000")
-        app.run(host='0.0.0.0', port=5000, debug=True)
+    # Test guidelines intent
+    logger.info("\n\n==== TESTING GUIDELINES INTENT ====")
+    response = agent.process_message("Can you help me create content guidelines for my tech blog?", session_id)
+    logger.info(f"Response: {response[:100]}...")
     
-    elif args.test:
-        # Run a test conversation
-        print("Running test conversation...")
-        import test_agent
-        test_agent.main()
+    # Test app info intent
+    logger.info("\n\n==== TESTING APP INFO INTENT ====")
+    response = agent.process_message("What features does this application have?", session_id)
+    logger.info(f"Response: {response[:100]}...")
     
-    else:
-        # Show help if no arguments provided
-        parser.print_help()
-        sys.exit(1)
+    # Test post examples intent
+    logger.info("\n\n==== TESTING POST EXAMPLES INTENT ====")
+    response = agent.process_message("Can you generate some example posts based on my guidelines?", session_id)
+    logger.info(f"Response: {response[:100]}...")
+    
+    logger.info("==== TESTING COMPLETE ====")
 
-if __name__ == '__main__':
-    main() 
+if __name__ == "__main__":
+    # Configure logging
+    os.environ["LOG_LEVEL"] = "DEBUG"
+    configure_logging()
+    logger = logging.getLogger(__name__)
+    
+    logger.info("Starting Content Planner Agent application")
+    
+    # Run routing logic tests
+    test_routing_logic()
+    
+    # Create and run the Flask app
+    app = create_app()
+    
+    # Set debug mode based on environment
+    debug = os.environ.get("FLASK_DEBUG", "False").lower() in ("true", "1", "t")
+    
+    logger.info(f"Running Flask app with debug={debug}")
+    app.run(host="0.0.0.0", port=5000, debug=debug) 

@@ -1,8 +1,12 @@
 """
 API routes for the Content Planner Agent.
 """
+import logging
 from flask import Blueprint, request, jsonify
 from content_planner_agent.agent import ContentPlannerAgent
+
+# Set up logger
+logger = logging.getLogger(__name__)
 
 # Create a Flask Blueprint for the API routes
 api_bp = Blueprint('api', __name__)
@@ -31,6 +35,7 @@ def process_message():
     data = request.json
     
     if not data or 'message' not in data or 'session_id' not in data:
+        logger.error("Invalid request: missing message or session_id")
         return jsonify({
             'error': 'Invalid request. Must include "message" and "session_id".'
         }), 400
@@ -38,8 +43,12 @@ def process_message():
     message = data['message']
     session_id = data['session_id']
     
+    logger.info(f"Received message for session {session_id[:8]}")
+    
     # Process the message with the agent
     response = agent.process_message(message, session_id)
+    
+    logger.info(f"Processed message for session {session_id[:8]}")
     
     return jsonify({
         'response': response,
@@ -75,6 +84,7 @@ def save_guideline():
     data = request.json
     
     if not data or 'guideline' not in data or 'session_id' not in data:
+        logger.error("Invalid request: missing guideline or session_id")
         return jsonify({
             'error': 'Invalid request. Must include "guideline" and "session_id".'
         }), 400
@@ -82,16 +92,20 @@ def save_guideline():
     guideline = data['guideline']
     session_id = data['session_id']
     
+    logger.info(f"Saving guideline for session {session_id[:8]}")
+    
     # Save the guideline
     success = agent.save_guideline(guideline, session_id)
     
     if success:
+        logger.info(f"Guideline saved successfully for session {session_id[:8]}")
         return jsonify({
             'success': True,
             'message': 'Guideline saved successfully.',
             'session_id': session_id
         })
     else:
+        logger.error(f"Failed to save guideline for session {session_id[:8]}")
         return jsonify({
             'success': False,
             'message': 'Failed to save guideline.',
@@ -112,16 +126,45 @@ def get_guideline(session_id):
     # Handle CORS preflight requests
     if request.method == 'OPTIONS':
         return '', 200
-        
+    
+    logger.info(f"Getting guideline for session {session_id[:8]}")
+    
     guideline = agent.get_guideline(session_id)
     
     if guideline:
+        logger.info(f"Retrieved guideline for session {session_id[:8]}")
         return jsonify({
             'guideline': guideline,
             'session_id': session_id
         })
     else:
+        logger.warning(f"Guideline not found for session {session_id[:8]}")
         return jsonify({
             'error': 'Guideline not found.',
             'session_id': session_id
-        }), 404 
+        }), 404
+
+@api_bp.route('/post-examples/<session_id>', methods=['GET', 'OPTIONS'])
+def get_post_examples(session_id):
+    """
+    Get generated post examples for a session.
+    
+    Args:
+        session_id: The session ID in the URL path
+    
+    Returns:
+        JSON response with the post examples
+    """
+    # Handle CORS preflight requests
+    if request.method == 'OPTIONS':
+        return '', 200
+    
+    logger.info(f"Getting post examples for session {session_id[:8]}")
+    
+    examples = agent.get_post_examples(session_id)
+    
+    return jsonify({
+        'examples': examples,
+        'count': len(examples),
+        'session_id': session_id
+    }) 
